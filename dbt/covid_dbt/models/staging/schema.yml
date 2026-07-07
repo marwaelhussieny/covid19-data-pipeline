@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: stg_covid_daily
+    description: One row per country/province/date with cleaned case and death counts.
+    columns:
+      - name: report_date
+        tests:
+          - not_null
+      - name: country_region
+        tests:
+          - not_null
+      - name: cumulative_confirmed
+        tests:
+          - not_null
+      - name: cumulative_deaths
+        tests:
+          - not_null

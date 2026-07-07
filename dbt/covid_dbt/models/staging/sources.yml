@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: covid_daily
+        description: >
+          Cleaned, long-format COVID-19 confirmed cases and deaths, loaded
+          by src/ingestion/load.py from the JHU CSSE time-series CSVs.
+          Full-refreshed on every pipeline run.
+        loaded_at_field: date
+        columns:
+          - name: country_region
+            description: Canonical country name (standardized in Python, see COUNTRY_NAME_MAP)
+          - name: province_state
+            description: "Sub-national region, or 'Unspecified' when JHU doesn't report one"
+          - name: cumulative_confirmed
+            description: Running total confirmed cases as of this date
+          - name: cumulative_deaths
+            description: Running total deaths as of this date
+          - name: new_confirmed
+            description: Day-over-day new confirmed cases (diff of cumulative)
+          - name: new_deaths
+            description: Day-over-day new deaths (diff of cumulative)
+          - name: is_data_correction
+            description: True when new_confirmed or new_deaths was negative (JHU retroactive correction)

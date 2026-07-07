@@ -1,0 +1,20 @@
+# Copy this to ~/.dbt/profiles.yml (or set DBT_PROFILES_DIR to this folder)
+# and adjust credentials as needed. In docker-compose these env vars are
+# already set for you.
+covid_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('WAREHOUSE_HOST', 'localhost') }}"
+      user: "{{ env_var('WAREHOUSE_USER', 'airflow') }}"
+      password: "{{ env_var('WAREHOUSE_PASSWORD', 'airflow') }}"
+      port: 5432
+      dbname: "{{ env_var('WAREHOUSE_DB', 'covid') }}"
+      schema: staging
+      threads: 4
+    ci:
+      type: duckdb
+      path: "ci_covid.duckdb"
+      schema: staging
+      threads: 4

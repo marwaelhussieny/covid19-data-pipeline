@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check src/ tests/ dags/
+
+      - name: Unit tests
+        run: pytest tests/ -v
+
+  dbt-build:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: airflow
+          POSTGRES_PASSWORD: airflow
+          POSTGRES_DB: covid
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Extract, transform, validate, load sample data into Postgres
+        env:
+          WAREHOUSE_URL: postgresql://airflow:airflow@localhost:5432/covid
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'src')
+          from pathlib import Path
+          from ingestion.extract import download_all
+          from ingestion.transform import build_clean_table
+          from data_quality.checks import validate_clean_table
+          from ingestion.load import load_clean_table
+          import pandas as pd
+
+          paths = download_all(Path('data/raw'))
+          confirmed = pd.read_csv(paths['confirmed'])
+          deaths = pd.read_csv(paths['deaths'])
+          clean = build_clean_table(confirmed, deaths)
+          validated = validate_clean_table(clean)
+          load_clean_table(validated)
+          print('Loaded', len(validated), 'rows')
+          "
+
+      - name: dbt run
+        working-directory: dbt/covid_dbt
+        env:
+          DBT_PROFILES_DIR: .
+          WAREHOUSE_HOST: localhost
+          WAREHOUSE_USER: airflow
+          WAREHOUSE_PASSWORD: airflow
+          WAREHOUSE_DB: covid
+        run: dbt run --target dev
+
+      - name: dbt test
+        working-directory: dbt/covid_dbt
+        env:
+          DBT_PROFILES_DIR: .
+          WAREHOUSE_HOST: localhost
+          WAREHOUSE_USER: airflow
+          WAREHOUSE_PASSWORD: airflow
+          WAREHOUSE_DB: covid
+        run: dbt test --target dev

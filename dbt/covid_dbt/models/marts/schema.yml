@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: fct_covid_country_daily
+    description: One row per country/day with rolled-up case & death counts, CFR, and 7-day rolling average.
+    columns:
+      - name: report_date
+        tests:
+          - not_null
+      - name: country_region
+        tests:
+          - not_null
+      - name: cumulative_confirmed
+        tests:
+          - not_null
+
+  - name: fct_covid_global_daily
+    description: One row per day with global totals. Powers the dashboard's top-line KPIs.
+    columns:
+      - name: report_date
+        tests:
+          - not_null
+          - unique
