@@ -66,6 +66,13 @@ Orchestrated as a single Airflow DAG (`dags/covid_pipeline_dag.py`):
 | CI | GitHub Actions (lint, unit tests, full dbt build against ephemeral Postgres) |
 | IaC | Terraform (optional AWS RDS target) |
 
+## Screenshots
+
+![Airflow DAG run](docs/screenshots/airflow_dag_run.png)
+*All 5 pipeline tasks completing successfully*
+
+![Dashboard](docs/screenshots/dashboard.png)
+*Streamlit dashboard showing global COVID trends*
 ## Running it
 
 ```bash
