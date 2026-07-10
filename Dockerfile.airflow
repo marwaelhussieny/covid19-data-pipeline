@@ -15,5 +15,4 @@ RUN python3 -m venv /opt/dbt-venv && \
 
 # Make dbt callable from PATH without needing the full venv path every time
 ENV PATH="/opt/dbt-venv/bin:${PATH}"
-
 USER airflow
