@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -e
 
 if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then

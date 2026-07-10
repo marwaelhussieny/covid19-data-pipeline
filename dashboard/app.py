@@ -21,12 +21,12 @@ def get_engine():
 
 @st.cache_data(ttl=3600)
 def load_global_daily() -> pd.DataFrame:
-    return pd.read_sql("select * from marts.fct_covid_global_daily order by report_date", get_engine())
+    return pd.read_sql("select * from staging_marts.fct_covid_global_daily order by report_date", get_engine())
 
 
 @st.cache_data(ttl=3600)
 def load_country_daily() -> pd.DataFrame:
-    return pd.read_sql("select * from marts.fct_covid_country_daily order by report_date", get_engine())
+    return pd.read_sql("select * from staging_marts.fct_covid_country_daily order by report_date", get_engine())
 
 
 st.title("COVID-19 Data Pipeline — Dashboard")
