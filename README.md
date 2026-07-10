@@ -9,7 +9,7 @@ project: same underlying dataset, production-shaped architecture.
 
 ## Architecture
 
-![Pipeline architecture](docs/architecture.jpg)
+![Pipeline architecture](docs/screenshots/architecture.jpg)
 
 Orchestrated as a single Airflow DAG (`dags/covid_pipeline_dag.py`):
 `extract → transform_and_validate → load → dbt_run → dbt_test`.
