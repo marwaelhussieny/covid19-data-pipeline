@@ -17,3 +17,4 @@ dbt/covid_dbt/dbt_packages/
 .terraform/
 
 .DS_Store
+dbt/covid_dbt/.user.yml 

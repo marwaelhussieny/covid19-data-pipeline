@@ -7,7 +7,13 @@ x-airflow-common: &airflow-common
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow_meta
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin"
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://localhost:8080/execution/"
     WAREHOUSE_URL: postgresql://airflow:airflow@postgres:5432/covid
+    WAREHOUSE_HOST: postgres
+    WAREHOUSE_USER: airflow
+    WAREHOUSE_PASSWORD: airflow
+    WAREHOUSE_DB: covid
     DBT_PROFILES_DIR: /opt/airflow/dbt/covid_dbt
   volumes:
     - ./dags:/opt/airflow/dags
@@ -17,7 +23,6 @@ x-airflow-common: &airflow-common
   depends_on:
     postgres:
       condition: service_healthy
-
 services:
   postgres:
     image: postgres:16
@@ -34,30 +39,21 @@ services:
       retries: 5
     ports:
       - "5432:5432"
-
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
+    user: root
     command:
       - -c
-      - "airflow db migrate && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true"
-
-  airflow-webserver:
+      - "mkdir -p /opt/airflow/data/raw && chown -R airflow:root /opt/airflow/data && airflow db migrate"
+  airflow-standalone:
     <<: *airflow-common
-    command: airflow api-server
+    command: airflow standalone
     ports:
       - "8080:8080"
     depends_on:
       airflow-init:
         condition: service_completed_successfully
-
-  airflow-scheduler:
-    <<: *airflow-common
-    command: airflow scheduler
-    depends_on:
-      airflow-init:
-        condition: service_completed_successfully
-
   dashboard:
     build:
       context: .
@@ -69,7 +65,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
 volumes:
   postgres_data:
   airflow_data:
