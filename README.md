@@ -9,7 +9,7 @@ project: same underlying dataset, production-shaped architecture.
 
 ## Architecture
 
-![Pipeline architecture](docs/screenshots/architecture.jpg)
+![Pipeline architecture](docs/screenshots/architecture.jfif)
 
 Orchestrated as a single Airflow DAG (`dags/covid_pipeline_dag.py`):
 `extract → transform_and_validate → load → dbt_run → dbt_test`.
@@ -46,6 +46,15 @@ Orchestrated as a single Airflow DAG (`dags/covid_pipeline_dag.py`):
 | CI | GitHub Actions (lint, unit tests, full dbt build against ephemeral Postgres) |
 | IaC | Terraform (optional AWS RDS target) |
 
+## CI/CD Pipeline
+
+In addition to GitHub Actions, this project includes a Jenkins pipeline
+(`Jenkinsfile`) demonstrating a classic build → test → containerize flow:
+1. Checkout from GitHub
+2. Lint (ruff)
+3. Unit tests (pytest)
+4. Build both Docker images (Airflow + dashboard), tagged with the Jenkins build number
+
 ## Screenshots
 
 ![Airflow DAG run](docs/screenshots/airflow_dag_run.png)
@@ -53,6 +62,13 @@ Orchestrated as a single Airflow DAG (`dags/covid_pipeline_dag.py`):
 
 ![Dashboard](docs/screenshots/dashboard.png)
 *Streamlit dashboard showing global COVID trends*
+
+![Jenkins CI/CD pipeline](docs/screenshots/jenkins_pipeline.JPG)
+*Full pipeline: lint → unit tests → Docker image builds, all passing*
+
+![Jenkins CI/CD pipeline](docs/screenshots/jenkins_console_output.JPG)
+*Full pipeline: lint → unit tests → Docker image builds, all passing*
+
 ## Running it
 
 ```bash
